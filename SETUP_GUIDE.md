@@ -9,7 +9,7 @@
 5. [ทดสอบระบบ](#5-ทดสอบระบบ)
 
 ---
-
+d
 ## 1. สร้าง LINE Messaging API Channel
 
 ⚠️ **อัพเดท 2026:** ตอนนี้ LINE ไม่อนุญาตให้สร้าง Messaging API channel โดยตรงจาก LINE Developers Console แล้ว ต้อง**สร้าง LINE Official Account ก่อน** แล้วค่อย**เปิดใช้งาน Messaging API**
