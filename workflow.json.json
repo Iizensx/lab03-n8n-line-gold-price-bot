@@ -1,0 +1,184 @@
+{
+  "name": "lab03-line-gold-bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gold-bot",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        112
+      ],
+      "id": "f8564d12-b5c3-4243-a27b-75c8ba65bf7c",
+      "name": "Webhook",
+      "webhookId": "5820b8c3-5320-4425-a2bf-60b772ebf86f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "66d0f68e-7a8e-45c4-bad7-280e493600a7",
+              "leftValue": "={{ $json.body.events[0].message.text }}",
+              "rightValue": "=ราคาทอง",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "1da02b4a-8912-428d-9ba7-5577e9ada222",
+              "leftValue": "={{ $json.body.events[0].message.text }}",
+              "rightValue": "ทอง",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "bf8501aa-5777-432c-a05c-f659f70b35a0",
+              "leftValue": "ิ{{ $json.body.events[0].message.text }}",
+              "rightValue": "gold",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        112
+      ],
+      "id": "7be6140f-8a72-4b22-9c23-023068e1af97",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "https://api.chnwt.dev/thai-gold-api/latest",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        48,
+        80
+      ],
+      "id": "cc04f3b5-f012-476d-aae8-3aabc3a9f322",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const goldData = $input.first().json;\nconst lineEvent = $('Webhook').first().json.body.events[0];\nconst response = goldData.response;\n\nconst message = `📊 ราคาทองวันนี้\n━━━━━━━━━━━━━━━\n📅 ${response.update_date} ${response.update_time}\n🏆 ทองคำแท่ง 96.5%\n   💰 ขายออก: ${response.price.gold_bar.sell} บาท\n   💵 รับซื้อ: ${response.price.gold_bar.buy} บาท\n💍 ทองรูปพรรณ 96.5%\n   💰 ขายออก: ${response.price.gold.sell} บาท\n   💵 รับซื้อ: ${response.price.gold.buy} บาท\n📌 ข้อมูลจากสมาคมค้าทองคำ`;\n\nreturn [{\n  json: {\n    replyToken: lineEvent.replyToken,\n    messages: [{\n      type: \"text\",\n      text: message\n    }]\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        80
+      ],
+      "id": "596ac43c-3261-4629-a3a9-6d8371781c2c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/reply",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        96
+      ],
+      "id": "e526c872-57d8-460a-81a7-3adf7d3aa4a1",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4ok34DPVEqUtCKo8",
+          "name": "Header Auth account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "8afedaf2-bc56-4275-b212-3c7aa4f8e458",
+  "meta": {
+    "instanceId": "b75d43b30fb8ee0095a7e18f37fce92a60284b7141a89bf76a928be411a9bdbb"
+  },
+  "id": "UMZf4hHZrmvjrJ1CC-CY0",
+  "tags": []
+}
